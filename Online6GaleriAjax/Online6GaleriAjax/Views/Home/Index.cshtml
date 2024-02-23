@@ -1,0 +1,310 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+
+<!-- The Modal -->
+@* Acilacak olan pencerede (Modal'da) güncelleme formu gelsin *@
+<div class="modal" id="myModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title">Araba Güncelleme</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body">
+                @* Buraya güncelleme formunu ekleyelim *@
+                <table>
+                    <tr>
+                        <td>Id:</td> 
+                        <td><input type="text" readonly id="txtId"/></td>
+                    </tr>
+                    <tr>
+                        <td>Marka:</td>
+                        <td><input type="text" id="txtGuncelMarka" /></td>
+                    </tr>
+                    <tr>
+                        <td>Fiyat:</td>
+                        <td><input type="text" id="txtGuncelFiyat" /></td>
+                    </tr>
+                    <tr>
+                        <td>Ikinci El:</td>
+                        <td><input type="checkbox" readonly id="cbGuncelIkinciEl" /></td>
+                    </tr
+                    <tr>                        
+                        <td><input class="btn btn-outline-warning" type="submit" onclick="Guncelle($('#txtId').val())" value="Güncelle" /></td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Kapat</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+ @* Açılacak olan pencerede (modalda) silme formu gelsin. *@
+    <div class="modal" id="myModal2">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Aşağıdaki bilgileri verilen arabayı silmek istediğinize emin misiniz?</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <!-- Modal body -->
+
+                <div class="modal-body">
+                    @*   Buraya güncelleme formumuzu ekleyelim *@
+                    <table class="table table-hover">
+                        <tr><td> Id:   </td>  <td> <input type="text" readonly id="txtSilId" />   </td>  </tr>
+                        <tr><td> Marka:   </td>  <td> <input type="text" readonly id="txtSilMarka" />   </td>  </tr>
+                        <tr><td> Fiyat:   </td>  <td> <input type="text" readonly id="txtSilFiyat" />   </td>  </tr>
+                        <tr><td> İkinci El:   </td>  <td> <input type="checkbox" disabled id="cbSilIkinciEl" />   </td>  </tr>
+                        <tr> <td> <input class="btn btn-outline-danger" type="submit" onClick="Sil($('#txtSilId').val())" value="SİL" /> </td>  </tr>
+                    </table>
+
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Kapat</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+<table id="Arabalar" class="table table-hover">
+    <thead>
+        <tr>
+            <th> Marka </th>
+            <th> Fiyat </th>
+            <th> İkinci El </th>
+        </tr>
+
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+
+<div>
+    <h2>Araba Ekleme Bölümü</h2>
+
+    <p>Araba eklemek için butona basıp panelin açılmasını bekleyiniz.</p>
+    <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#ekleme">Ekleme Bölümü</button>
+
+    <div class="collapse border rounded p-4" id="ekleme">
+        @* Buraya ekleme bölümünü yazalım... *@
+        <table class="table table-borderless">
+            <tr>
+                <td>Marka: </td>
+                <td><input type="text" id="txtMarka" class="form-control" /></td>
+            </tr>
+            <tr>
+                <td>Fiyat: </td>
+                <td><input type="number" id="txtFiyat" class="form-control" /></td>
+            </tr>
+            <tr>
+                <td>İkinci El Mi?: </td>
+                <td><input type="checkbox" id="cbIkinciElMi" class="form-check-input" /></td>
+            </tr>
+            <tr>
+                <td colspan="2" class="text-center"><input type="submit" value="Kaydet" class="btn btn-success w-50" id="btnEkle" /></td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"> </script>
+<script>
+    $(document).ready(function () {
+
+        //arabaların listesi ne zaman gelecek?
+        //Cevap: Sayfa açılınca
+        //O yüzden tüm arabaların gelmesi bir click fonksiyonunda değil de direkt yazılacak.
+
+        //dolayısıyla sayfa açılınca API'den hepsini getirip yazdıralım
+        $.ajax(
+            {
+                url: "https://localhost:7207/api/Araba/TumArabalar",
+                type: "GET",
+                dataType: "JSON",
+                contentType: "application/json;charset=utf-8",
+
+                success: function (data) {
+                    //burası başarılı olduğu zaman çalışır.
+                    //biz de başarılı olduğu zaman bütün arabaları listeleyeceğiz
+
+                    //döngü ile arabaları yazdıralım...
+                    $.each(data, function (i, araba) {
+                        //artık burada her arabaya ulaşabiliyoruz.
+                        //(API'dan gelen)
+
+                        console.log(araba);
+
+                        var arabaSatiri = "<tr>" +
+                            "<td>" + araba.marka + "</td>" +
+                            "<td>" + araba.fiyat + "</td>" +
+                            "<td>" + araba.ikinciElMi + "</td>" +
+                            "<td>" +
+                                "<button class='btn btn-warning' id='btnDüzenle" + i + "' onClick='VeriAl(" + araba.id + ")' data-bs-toggle='modal' data-bs-target='#myModal'> Düzenle</button>" +
+                                "</td>" +
+                                "<td>" +
+                                "<button class='btn btn-danger' id='btnSil" + i + "' onClick='VeriAl2(" + araba.id + ")'  data-bs-toggle='modal' data-bs-target='#myModal2'> Sil</button>" +
+                                "</td>" +
+                                "</tr>";
+
+                        $("#Arabalar tbody").append(arabaSatiri);
+                    });
+                },
+                error: function () {
+                    alert("Hata oluştu!");
+                }
+            });
+
+
+
+        $('#btnEkle').click(function () {
+            // Butona basıldığı zaman API'daki ekleme metodu çağırılarak yeni araba eklenecek
+            // Ama önce kontrollerden (textboxlardan ve checkbox'tan alınan bilgileri toplayıp,  bir obje oluşturup) geçireceğiz.
+
+            let yeniAraba = {
+                Marka: $('#txtMarka').val(),
+                Fiyat: $('#txtFiyat').val(),
+                IkinciElMi: $('#cbIkinciElMi').is(":checked")
+            };
+
+            $.ajax({
+                url: "https://localhost:7207/api/Araba/ArabaEkle",
+                type: "POST",
+                data: JSON.stringify(yeniAraba),
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                success: function (data) {
+                    // Başarılı olduğu zaman buraya gelecek
+                    alert("Başarılı bir şekilde eklenmiştir.")
+                    location.reload();
+                },
+                error: function (data) {
+                    // Bir hata durumunda buraya gelecek
+                    alert("Hata oluştu!");
+                }
+            });
+        });
+    });
+
+    //Güncelleme islemi icin, tiklanan arabanin verilerini kontrollere (textboxlara ve checkbox'lara) aktarmak icin gereken fonksiyon
+    function VeriAl(id) {
+        // Yine API'den o Id'ye ait olan arabayi alip, kontrollere aktaralim.
+
+        $.ajax({
+            url: "https://localhost:7207/api/Araba/IdYeGoreGetir?id=" + id,
+            type: "GET",
+            dataType: "JSON",
+            contentType: "application/json;charset=utf-8",
+            success: function (data) { 
+                // basarili oldugu zaman getirilen arabanin bilgilerini kontrollere aktaralim.
+                $('#txtId').val(data.id);
+                $('#txtGuncelMarka').val(data.marka);
+                $('#txtGuncelFiyat').val(data.fiyat);
+                $('#cbGuncelIkinciEl').prop("checked", data.ikinciElMi);
+            },
+            error: function (data) { 
+                alert("Hata olustu")            
+            }
+
+        });
+    }
+
+
+    function VeriAl2(id) {
+            //Güncelleme işlemi için, tıklanan arabanın verilerini kontrollere (textboxlara ve checkbox'a) aktarmak için gereken fonksiyon
+
+            //Yine API'dan o ID'ye ait olan arabayı alıp, kontrollere aktaralım.
+
+            $.ajax({
+                url: "https://localhost:7207/api/Araba/IdYeGoreGetir?id=" + id,
+                type: "Get",
+                dataType: "JSON",
+                contentType: "application/json;charset=utf-8",
+
+                success: function (data) {
+                    //başarılı olduğu zaman getirilen arabanın bilgilerini kontrolere ata (textboxlara ve checkboxa)
+                    //burada ajax ile API'den güncelleyeceğiz.
+                    $('#txtSilId').val(data.id);
+                    $('#txtSilMarka').val(data.marka);
+                    $('#txtSilFiyat').val(data.fiyat);
+                    $('#cbSilIkinciEl').prop("checked", data.ikinciElMi);
+
+                },
+                error: function () {
+                    alert("Hata Oluştu!");
+                }
+
+            });
+        }
+
+    function Guncelle(id) {
+        //API'den AJAX ile güncelleyecek
+        //güncellemek için yine bir araba objesi oluşturalım
+
+        let guncellenecekAraba = {
+            Id: $('#txtId').val(),
+            Marka: $('#txtGuncelMarka').val(),
+            Fiyat: $('#txtGuncelFiyat').val(),
+            IkinciElMi: $('#cbGuncelIkinciEl').is(":checked")
+        };
+
+        $.ajax({
+            url: "https://localhost:7207/api/Araba/ArabaGuncelle?id=" + id,
+            type: "PUT",
+            data: JSON.stringify(guncellenecekAraba),
+            headers: {
+                "Content-Type": "application/json"
+            },
+            success: function (data) {
+                // Başarılı olduğu zaman buraya gelecek
+                alert("Başarılı bir şekilde güncellenmiştir.")
+                location.reload();
+            },
+            error: function (data) {
+                // Bir hata durumunda buraya gelecek
+                alert("Hata oluştu!");
+            }
+        });
+    }
+
+
+    function Sil(id) {
+        //API'den AJAX ile silecek
+
+        $.ajax({
+            url: "https://localhost:7207/api/Araba/Sil?id=" + id,
+            type: "DELETE",
+            contentType: "application/json;charset=utf-8",
+            success: function (data) {
+                // Başarılı olduğu zaman buraya gelecek
+                alert("Başarılı bir şekilde silinmistir.")
+                location.reload();
+            },
+            error: function (data) {
+                // Bir hata durumunda buraya gelecek
+                alert("Hata oluştu!");
+            }
+        });
+    }
+</script>

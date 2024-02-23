@@ -1,0 +1,6 @@
+@WebApiGorevler_HostAddress = http://localhost:5074
+
+GET {{WebApiGorevler_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
